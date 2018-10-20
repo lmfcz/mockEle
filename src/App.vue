@@ -1,14 +1,18 @@
 <template>
   <div id="app">
-    <header-comp></header-comp>
+    <v-header></v-header>
+    <v-tabs></v-tabs>
+    <router-view/>
   </div>
 </template>
 
 <script>
-import HeaderComp from 'components/header/header'
+import VHeader from 'components/header/header'
+import VTabs from 'components/tabs/tabs'
 export default {
   components: {
-    HeaderComp
+    VHeader,
+    VTabs
   }
 }
 </script>

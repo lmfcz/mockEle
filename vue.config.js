@@ -5,7 +5,8 @@ module.exports = {
     resolve: {
       alias: {
         'common': '@/common',
-        'components': '@/components'
+        'components': '@/components',
+        'router': '@/router'
       }
     },
     // mock数据
