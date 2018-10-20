@@ -1,5 +1,6 @@
-<<<<<<< HEAD
-# vue-ele
+# mockEle
+a simple vue.js project
+仿饿了么
 
 ## Project setup
 ```
@@ -25,7 +26,4 @@ npm run test
 ```
 npm run lint
 ```
-=======
-# mockEle
-a simple vue.js project 
->>>>>>> origin/master
+ 
