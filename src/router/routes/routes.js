@@ -4,6 +4,10 @@ import Ratings from 'components/tabs/ratings/ratings'
 
 export default [
   {
+    path: '/',
+    redirect: '/goods'
+  },
+  {
     path: '/goods',
     component: Goods
   },

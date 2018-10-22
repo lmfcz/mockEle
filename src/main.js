@@ -4,6 +4,7 @@ import App from './App.vue'
 import createRouter from 'router/router'
 
 import '../static/style/reset.css'
+import 'common/stylus/index.styl'
 
 Vue.use(VueRouter)
 

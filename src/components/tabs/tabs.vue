@@ -18,10 +18,12 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+  @import '~common/stylus/mixin.styl'
   .tabs
     width 100%
     display flex
     width 100%
+    border-1px(rgba(7, 17, 27, .1))
     .tab-item
       flex 1
       height 40px
@@ -33,4 +35,5 @@ export default {
         display block
       .active
         color rgb(240, 20, 20)
+        font-weight bold
 </style>
