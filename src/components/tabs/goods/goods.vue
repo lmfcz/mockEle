@@ -1,60 +1,79 @@
 <template>
   <div class="goods">
-    <div class="menu-wrapper">
-      <ul v-if="goods.length">
-        <li class="menu-item"
-            v-for="(good, index) of goods"
-            :class="{current: index === currentIndex}"
-            :key="good.name"
-        >
-          <span class="text">
-            <span class="icon"
-                  v-if="good.type>0"
-                  :class="classMap[good.type]"
-            ></span>{{good.name}}
-          </span>
-        </li>
-      </ul>
-    </div>
-    <div class="item-wrapper">
-      <ul v-if="goods.length">
-        <li class="section" v-for="item of goods" :key="item.name">
-          <div class="section-title">{{item.name}}</div>
-          <ul>
-            <li class="item" v-for="food of item.foods" :key="food.name">
-              <span class="avatar">
-                <img class="img" :src="food.image" :alt="food.name">
-              </span>
-              <div class="info">
-                <div class="item-name">{{food.name}}</div>
-                <div class="desc">{{food.description}}</div>
-                <div class="sell-info">
-                  <span class="sell">月售{{food.sellCount}}份</span>
-                  <span class="rating">好评率{{food.rating}}%</span>
+    <scroll :data="goods" ref="menuScroll">
+      <div class="menu-wrapper">
+        <ul v-if="goods.length">
+          <li class="menu-item"
+              v-for="(good, index) of goods"
+              :class="{current: index === currentIndex}"
+              :key="good.name"
+              @click="handleMenuItemClick(index)"
+          >
+            <span class="text">
+              <span class="icon"
+                    v-if="good.type>0"
+                    :class="classMap[good.type]"
+              ></span>{{good.name}}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </scroll>
+    <scroll
+      :data="goods.foods"
+      @scroll="handleScroll"
+      ref="itemScroll"
+    >
+      <div class="item-wrapper">
+        <ul v-if="goods.length">
+          <li class="section" ref="section" v-for="item of goods" :key="item.name">
+            <div class="section-title">{{item.name}}</div>
+            <ul>
+              <li class="item" v-for="food of item.foods" :key="food.name">
+                <span class="avatar">
+                  <img class="img" :src="food.image" :alt="food.name">
+                </span>
+                <div class="info">
+                  <div class="item-name">{{food.name}}</div>
+                  <div class="desc">{{food.description}}</div>
+                  <div class="sell-info">
+                    <span class="sell">月售{{food.sellCount}}份</span>
+                    <span class="rating">好评率{{food.rating}}%</span>
+                  </div>
+                  <div class="sale-price">
+                    <span class="current-price">{{food.price}}</span>
+                    <span class="old-price" v-if="food.oldPrice">{{food.oldPrice}}</span>
+                  </div>
                 </div>
-                <div class="sale-price">
-                  <span class="current-price">{{food.price}}</span>
-                  <span class="old-price" v-if="food.oldPrice!=''">{{food.oldPrice}}</span>
+                <div class="operator-wrapper">
+                  <operator :food="food"></operator>
                 </div>
-              </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-    <div class="short-cart">
-      this is short cart
-    </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </scroll>
+    <shop-cart :seller="seller" :selectFoods="selectFoods"></shop-cart>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import Scroll from 'components/scroll/scroll'
+import ShopCart from '../components/shopcart/shopcart'
+import Operator from '../components/operator/operator'
 export default {
   data () {
     return {
       goods: [],
-      currentIndex: 2
+      listHeight: [],
+      scrollY: 0
+    }
+  },
+  props: {
+    seller: {
+      type: Object
     }
   },
   created () {
@@ -76,6 +95,58 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    _calculateHeight () {
+      let foodList = this.$refs.section
+      let height = 0
+      this.listHeight.push(height)
+      for (let i = 0; i < foodList.length; i++) {
+        let item = foodList[i]
+        height += item.clientHeight
+        this.listHeight.push(height)
+      }
+    },
+    handleScroll (pos) {
+      this.scrollY = Math.abs(pos.y)
+    },
+    handleMenuItemClick (index) {
+      let targetItem = this.$refs.section[index]
+      this.$refs.itemScroll.scrollToElement(targetItem, 300)
+    }
+  },
+  components: {
+    Scroll,
+    ShopCart,
+    Operator
+  },
+  watch: {
+    goods () {
+      setTimeout(() => {
+        this._calculateHeight()
+      }, 20)
+    }
+  },
+  computed: {
+    currentIndex () {
+      for (let i = 0; i < this.listHeight.length; i++) {
+        let height1 = this.listHeight[i]
+        let height2 = this.listHeight[i + 1]
+        if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+          return i
+        }
+      }
+      return 0
+    },
+    selectFoods () {
+      let foods = []
+      this.goods.forEach(good => {
+        good.foods.forEach(food => {
+          if (food.count) {
+            foods.push(food)
+          }
+        })
+      })
+      return foods
     }
   }
 }
@@ -149,6 +220,7 @@ export default {
           color rgb(147, 153, 159)
         .item
           display flex
+          position relative
           margin 0 18px
           padding 18px 0
           border-1px(rgba(7, 17, 27, .1))
@@ -195,12 +267,8 @@ export default {
                 color rgb(147, 153, 159)
                 font-weight 700
                 text-decoration line-through
-    .short-cart
-      position fixed
-      width 100%
-      height 46px
-      left 0
-      bottom 0
-      z-index 100
-      background-color #141d27
+          .operator-wrapper
+            position absolute
+            bottom 18px
+            right 0
 </style>

@@ -2,7 +2,7 @@
   <div id="app">
     <v-header :seller="seller"></v-header>
     <v-tabs></v-tabs>
-    <router-view/>
+    <router-view :seller="seller"></router-view>
   </div>
 </template>
 
