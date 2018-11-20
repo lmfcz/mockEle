@@ -19,12 +19,13 @@ export default {
     }
   },
   methods: {
-    addCart () {
+    addCart (event) {
       if (!this.food.count) {
         Vue.set(this.food, 'count', 1)
       } else {
         this.food.count++
       }
+      this.$emit('add', event.target)
     },
     decreaseCart () {
       if (this.food.count) {

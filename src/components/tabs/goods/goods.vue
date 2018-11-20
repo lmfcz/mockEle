@@ -46,7 +46,7 @@
                   </div>
                 </div>
                 <div class="operator-wrapper">
-                  <operator :food="food"></operator>
+                  <operator :food="food" @add="handleAdd"></operator>
                 </div>
               </li>
             </ul>
@@ -54,7 +54,7 @@
         </ul>
       </div>
     </scroll>
-    <shop-cart :seller="seller" :selectFoods="selectFoods"></shop-cart>
+    <shop-cart :seller="seller" :selectFoods="selectFoods" ref="shopCart"></shop-cart>
   </div>
 </template>
 
@@ -107,11 +107,17 @@ export default {
       }
     },
     handleScroll (pos) {
-      this.scrollY = Math.abs(pos.y)
+      this.scrollY = Math.abs(Math.round(pos.y))
     },
     handleMenuItemClick (index) {
       let targetItem = this.$refs.section[index]
       this.$refs.itemScroll.scrollToElement(targetItem, 300)
+    },
+    handleAdd (el) {
+      // 优化体验，异步执行下落动画
+      this.$nextTick(() => {
+        this.$refs.shopCart.drop(el)
+      })
     }
   },
   components: {
